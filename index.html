@@ -126,6 +126,20 @@
     .balance-box span { display: block; color: var(--muted); font-size: 12px; }
     .balance-box strong { display: block; margin-top: 3px; font-size: 20px; letter-spacing: -.5px; font-variant-numeric: tabular-nums; }
     .balance-box.pending strong { color: #a56612; }
+    .low-balance-alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin-top: 12px;
+      padding: 11px 12px;
+      border: 1px solid var(--red);
+      border-radius: 12px;
+      background: var(--red-soft);
+      color: var(--red);
+      font-size: 13px;
+    }
+    .low-balance-alert p { margin: 0; }
+    .low-balance-icon { flex: 0 0 auto; font-size: 16px; line-height: 1.4; }
 
     .section-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; }
     h2 { margin: 0; font-size: 17px; letter-spacing: -.25px; }
@@ -386,6 +400,10 @@
         <div class="balance-box"><span>Saldo disponible</span><strong id="available-balance">S/ 0.00</strong></div>
         <div class="balance-box pending"><span>Pendiente de activación</span><strong id="pending-balance">S/ 0.00</strong></div>
       </div>
+      <div class="low-balance-alert" id="low-balance-alert" role="status" aria-live="polite" hidden>
+        <span class="low-balance-icon" aria-hidden="true">⚠️</span>
+        <p><strong>Saldo bajo.</strong> Tu saldo disponible es menor a S/ 5.00. Considera recargar.</p>
+      </div>
     </section>
 
     <section class="panel" aria-labelledby="recharge-title">
@@ -465,6 +483,7 @@
     (() => {
       "use strict";
       const STORAGE_KEY = "mi-metropolitano-demo-v1";
+      const LOW_BALANCE_THRESHOLD = 5;
       const DEFAULT_STATE = {
         cardNumber: "4821 7390 1642 4821",
         balance: 18.5,
@@ -524,6 +543,7 @@
       function render() {
         $("#card-number").textContent = `•••• •••• •••• ${state.cardNumber.replace(/\D/g, "").slice(-4).padStart(4, "0")}`;
         $("#available-balance").textContent = money(state.balance);
+        $("#low-balance-alert").hidden = state.balance >= LOW_BALANCE_THRESHOLD;
         const pending = state.history.filter(item => item.status === "pending");
         $("#pending-balance").textContent = money(pending.reduce((total, item) => total + item.amount, 0));
         $("#pending-notice").hidden = pending.length === 0;

@@ -1,0 +1,60 @@
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  validar:
+    name: Validar aplicación estática
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@v4
+      - name: Comprobar sintaxis del JavaScript integrado
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const html = fs.readFileSync("index.html", "utf8");
+          const script = html.match(/<script>([\s\S]*?)<\/script>/i);
+          if (!script) {
+            throw new Error("No se encontró el bloque de JavaScript en index.html.");
+          }
+          new Function(script[1]);
+          console.log("La sintaxis del JavaScript integrado es válida.");
+          NODE
+
+  publicar:
+    name: Publicar sitio
+    if: github.event_name != 'pull_request'
+    needs: validar
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Obtener el repositorio
+        uses: actions/checkout@v4
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Preparar archivos estáticos
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+      - name: Publicar en GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

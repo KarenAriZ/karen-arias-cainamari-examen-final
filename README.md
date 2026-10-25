@@ -38,7 +38,7 @@ También puedes descargar el repositorio como archivo ZIP, extraerlo y abrir `in
 
 ## Demostración en línea
 
-La publicación en GitHub Pages está en proceso. El enlace se añadirá aquí cuando se haya completado el despliegue y se compruebe que la aplicación está disponible.
+La aplicación está publicada en [GitHub Pages](https://karenariz.github.io/karen-arias-cainamari-examen-final/).
 
 ## Alcance y limitaciones
 
